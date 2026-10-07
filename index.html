@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blockwork — Find local services near you</title>
+  <meta name="description" content="Blockwork helps neighbours find trusted local service providers by city, neighbourhood, and postal code.">
+  <style>
+    :root { --ink:#14201c; --muted:#5d6b66; --cream:#f7f4ee; --green:#1f5c43; --lime:#d8f26a; --card:#fff; --line:#e2ded4; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,'Helvetica Neue',Arial,sans-serif; color:var(--ink); background:var(--cream); line-height:1.55; }
+    a { color:inherit; }
+    .wrap { width:min(1120px,calc(100% - 40px)); margin:0 auto; }
+    header { position:sticky; top:0; z-index:20; background:rgba(247,244,238,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding:16px 0; }
+    .logo { font-weight:800; font-size:22px; letter-spacing:-.03em; }
+    .logo span { color:var(--green); }
+    .nav-links { display:flex; gap:22px; font-size:15px; color:var(--muted); }
+    .nav-links a { text-decoration:none; }
+    .nav-links a:hover { color:var(--ink); }
+    .button { display:inline-block; padding:12px 20px; border-radius:999px; background:var(--green); color:#fff; font-weight:650; text-decoration:none; border:0; cursor:pointer; transition:transform .15s ease,opacity .15s ease; }
+    .button:hover { transform:translateY(-1px); opacity:.94; }
+    .button.light { background:var(--lime); color:var(--ink); }
+    .hero { padding:90px 0 70px; text-align:center; }
+    .eyebrow { display:inline-block; padding:7px 14px; border:1px solid var(--line); border-radius:999px; background:#fff; font-size:13px; font-weight:650; color:var(--muted); margin-bottom:24px; }
+    h1 { max-width:780px; margin:0 auto 22px; font-size:clamp(40px,7vw,76px); line-height:.98; letter-spacing:-.045em; font-weight:800; }
+    .hero p { max-width:620px; margin:0 auto 32px; color:var(--muted); font-size:18px; }
+    .search { display:flex; gap:10px; max-width:540px; margin:0 auto; padding:8px; background:#fff; border:1px solid var(--line); border-radius:999px; box-shadow:0 12px 30px rgba(20,32,28,.06); }
+    .search input { flex:1; border:0; outline:none; padding:12px 18px; font-size:16px; background:transparent; color:var(--ink); }
+    .hint { margin-top:14px; font-size:14px; color:var(--muted); }
+    section { padding:72px 0; }
+    .section-head { max-width:680px; margin-bottom:38px; }
+    h2 { margin:0 0 14px; font-size:clamp(30px,4.5vw,48px); letter-spacing:-.035em; line-height:1.05; font-weight:800; }
+    .section-head p { margin:0; color:var(--muted); font-size:17px; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .service { padding:22px; background:var(--card); border:1px solid var(--line); border-radius:18px; font-weight:650; }
+    .service small { display:block; margin-top:6px; color:var(--muted); font-weight:450; }
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .step { padding:28px; background:#fff; border:1px solid var(--line); border-radius:22px; }
+    .step-num { display:inline-grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--lime); font-weight:800; margin-bottom:18px; }
+    .step h3 { margin:0 0 8px; font-size:21px; letter-spacing:-.02em; }
+    .step p { margin:0; color:var(--muted); }
+    .listings { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .listing { background:#fff; border:1px solid var(--line); border-radius:22px; overflow:hidden; }
+    .listing-top { height:130px; background:linear-gradient(135deg,#e7f2d8,#d8f26a); }
+    .listing-body { padding:20px; }
+    .tag { display:inline-block; font-size:12px; font-weight:700; color:var(--green); background:#e8f3e2; padding:5px 10px; border-radius:999px; }
+    .listing h3 { margin:12px 0 5px; font-size:20px; }
+    .listing p { margin:0 0 16px; color:var(--muted); font-size:14px; }
+    .listing-meta { display:flex; justify-content:space-between; align-items:center; font-size:14px; font-weight:650; }
+    .provider { background:var(--green); color:#f4f8ef; border-radius:28px; padding:60px 40px; display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; }
+    .provider h2 { color:#fff; }
+    .provider p { color:#cfe0d2; }
+    .provider ul { padding:0; margin:24px 0 30px; list-style:none; }
+    .provider li { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.16); }
+    .cities { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .city { padding:24px; background:#fff; border:1px solid var(--line); border-radius:20px; color:var(--ink); }
+    .city h3 { margin:0 0 5px; }
+    .city small { color:var(--muted); }
+    .city p { color:var(--muted); font-size:14px; }
+    .faq { max-width:760px; }
+    details { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 22px; margin-bottom:12px; }
+    summary { cursor:pointer; font-weight:700; }
+    details p { margin:12px 0 0; color:var(--muted); }
+    .cta { text-align:center; background:var(--lime); border-radius:28px; padding:70px 30px; }
+    .cta h2 { margin-bottom:12px; }
+    .cta p { max-width:560px; margin:0 auto 26px; color:#3c4a40; }
+    footer { padding:40px 0; border-top:1px solid var(--line); color:var(--muted); font-size:14px; }
+    .footer-row { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    @media (max-width:900px) { .grid { grid-template-columns:repeat(2,1fr); } .steps,.listings,.cities { grid-template-columns:1fr; } .provider { grid-template-columns:1fr; padding:40px 24px; } .nav-links { display:none; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <div class="logo">Block<span>work</span></div>
+    <nav class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#how">How it works</a>
+      <a href="#providers">Providers</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="button" href="#join">List a service</a>
+  </div>
+</header>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Local services, organized by neighbourhood</div>
+      <h1>Find skilled people close to home.</h1>
+      <p>Blockwork connects neighbours with local dog walkers, tutors, cleaners, stylists, handypeople, and other service providers nearby.</p>
+      <form class="search" onsubmit="searchArea(event)">
+        <input id="area" type="text" placeholder="Enter a city or postal code" aria-label="Search area">
+        <button class="button" type="submit">Search</button>
+      </form>
+      <div class="hint">Try “Ottawa,” “Kitchener,” or a postal-code prefix such as “K2P.”</div>
+    </div>
+  </section>
+  <section id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Everyday work, done locally</h2>
+        <p>From one-time help to recurring services, find people working in your area.</p>
+      </div>
+      <div class="grid">
+        <div class="service">Dog walking<small>Walks, drop-ins, and pet sitting</small></div>
+        <div class="service">Babysitting<small>After school, evenings, and weekends</small></div>
+        <div class="service">Tutoring<small>Math, reading, languages, and exam prep</small></div>
+        <div class="service">Haircuts<small>Cuts, fades, colour, and styling</small></div>
+        <div class="service">Cleaning<small>Regular cleans and move-out resets</small></div>
+        <div class="service">Handywork<small>Shelves, fixtures, repairs, and assembly</small></div>
+        <div class="service">Photography<small>Portraits, pets, events, and small projects</small></div>
+        <div class="service">Music lessons<small>Piano, guitar, voice, and theory</small></div>
+      </div>
+    </div>
+  </section>
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>How Blockwork works</h2>
+        <p>A simple way to find nearby help—or help nearby people find you.</p>
+      </div>
+      <div class="steps">
+        <article class="step"><div class="step-num">1</div><h3>Search your area</h3><p>Enter a city, neighbourhood, or postal-code prefix to see providers working nearby.</p></article>
+        <article class="step"><div class="step-num">2</div><h3>Compare providers</h3><p>Review services, availability, rates, locations, and feedback before reaching out.</p></article>
+        <article class="step"><div class="step-num">3</div><h3>Message and book</h3><p>Contact the provider directly, agree on the details, and book the work.</p></article>
+      </div>
+    </div>
+  </section>
+  <section id="providers">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Providers near you</h2>
+        <p>Example listings showing how local service providers can appear on Blockwork.</p>
+      </div>
+      <div class="listings">
+        <article class="listing"><div class="listing-top"></div><div class="listing-body"><span class="tag">Dog walking</span><h3>Maya’s Walks</h3><p>Centretown, Ottawa · K2P</p><div class="listing-meta"><span>4.9 · 27 reviews</span><span>$28 / walk</span></div></div></article>
+        <article class="listing"><div class="listing-top"></div><div class="listing-body"><span class="tag">Tutoring</span><h3>Northside Tutoring</h3><p>Glebe, Ottawa · K1S</p><div class="listing-meta"><span>5.0 · 18 reviews</span><span>$40 / hour</span></div></div></article>
+        <article class="listing"><div class="listing-top"></div><div class="listing-body"><span class="tag">Cleaning</span><h3>Fresh Start Cleaning</h3><p>Westboro, Ottawa · K1Z</p><div class="listing-meta"><span>4.8 · 34 reviews</span><span>$35 / hour</span></div></div></article>
+      </div>
+    </div>
+  </section>
+  <section id="join">
+    <div class="wrap">
+      <div class="provider">
+        <div>
+          <h2>Put your service on the map</h2>
+          <p>If you provide a local service, create a simple listing with your work, service area, availability, and rates.</p>
+          <ul>
+            <li>Appear in neighbourhood and postal-code searches</li>
+            <li>Set your own prices and working hours</li>
+            <li>Receive inquiries directly from local customers</li>
+          </ul>
+          <a class="button light" href="mailto:hello@example.com">Create a listing</a>
+        </div>
+        <div class="cities">
+          <div class="city"><h3>Ottawa</h3><small>Ontario</small><p>Centretown, Glebe, Westboro, Kanata</p></div>
+          <div class="city"><h3>Toronto</h3><small>Ontario</small><p>Leslieville, Annex, Beaches, Parkdale</p></div>
+          <div class="city"><h3>Montreal</h3><small>Quebec</small><p>Mile End, Plateau, NDG, Verdun</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="faq">
+    <div class="wrap faq">
+      <div class="section-head"><h2>Questions</h2><p>Everything you need to know before getting started.</p></div>
+      <details><summary>Who is Blockwork for?</summary><p>Neighbours looking for local help and independent service providers who want to be discoverable in their community.</p></details>
+      <details><summary>Can I search by postal code?</summary><p>Yes. Enter a full postal code or the first three characters, and the site can prioritize nearby providers.</p></details>
+      <details><summary>Does Blockwork handle payments?</summary><p>In this starter version, providers and customers arrange payment directly. You can later integrate Stripe or another payment provider.</p></details>
+      <details><summary>What services can be listed?</summary><p>Any legitimate local service: dog walking, babysitting, tutoring, cleaning, haircuts, photography, repairs, music lessons, lawn care, and more.</p></details>
+    </div>
+  </section>
+  <section>
+    <div class="wrap">
+      <div class="cta">
+        <h2>Need help this week?</h2>
+        <p>Search your neighbourhood, compare local providers, and message someone who can help.</p>
+        <a class="button" href="#services">Browse services</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap footer-row">
+    <div><strong>Blockwork</strong> — local services, listed by neighbourhood.</div>
+    <div>© <span id="year"></span> Blockwork. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+  function searchArea(event) {
+    event.preventDefault();
+    const value = document.getElementById("area").value.trim();
+    if (!value) { alert("Enter a city, neighbourhood, or postal-code prefix."); return; }
+    alert(`Searching providers near “${value}”. Connect this form to a listings database or API to show real results.`);
+  }
+</script>
+</body>
+</html>
